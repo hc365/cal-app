@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
 import prisma from "@calcom/prisma";
-import type { GetAccessLinkResponseSchema, GetRecordingsResponseSchema } from "@calcom/prisma/zod-utils";
 import type { CalendarEvent } from "@calcom/types/Calendar";
 import type { PartialReference } from "@calcom/types/EventManager";
 import type { VideoApiAdapter, VideoCallData } from "@calcom/types/VideoApiAdapter";
@@ -87,22 +86,16 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
         )}`,
       });
     },
-    deleteMeeting: async (uid: string): Promise<void> => {
-      return Promise.resolve([]);
+    deleteMeeting: async (): Promise<void> => {
+      Promise.resolve();
     },
-    updateMeeting: (bookingRef: PartialReference, event: CalendarEvent): Promise<VideoCallData> => {
+    updateMeeting: (bookingRef: PartialReference): Promise<VideoCallData> => {
       return Promise.resolve({
         type: "serefin_video",
         id: bookingRef.meetingId as string,
         password: bookingRef.meetingPassword as string,
         url: bookingRef.meetingUrl as string,
       });
-    },
-    getRecordings: async (roomName: string): Promise<GetRecordingsResponseSchema> => {
-      return Promise.resolve([]);
-    },
-    getRecordingDownloadLink: async (recordingId: string): Promise<GetAccessLinkResponseSchema> => {
-      return Promise.resolve([]);
     },
   };
 };
