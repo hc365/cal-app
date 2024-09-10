@@ -63,6 +63,7 @@ import routing_forms_config_json from "./routing-forms/config.json";
 import salesforce_config_json from "./salesforce/config.json";
 import salesroom_config_json from "./salesroom/config.json";
 import sendgrid_config_json from "./sendgrid/config.json";
+import serefinvideo_config_json from "./serefinvideo/config.json";
 import shimmervideo_config_json from "./shimmervideo/config.json";
 import signal_config_json from "./signal/config.json";
 import sirius_video_config_json from "./sirius_video/config.json";
@@ -157,6 +158,7 @@ export const appStoreMetadata = {
   salesforce: salesforce_config_json,
   salesroom: salesroom_config_json,
   sendgrid: sendgrid_config_json,
+  serefinvideo: serefinvideo_config_json,
   shimmervideo: shimmervideo_config_json,
   signal: signal_config_json,
   sirius_video: sirius_video_config_json,

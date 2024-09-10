@@ -32,6 +32,7 @@ import { appDataSchema as posthog_zod_ts } from "./posthog/zod";
 import { appDataSchema as qr_code_zod_ts } from "./qr_code/zod";
 import { appDataSchema as routing_forms_zod_ts } from "./routing-forms/zod";
 import { appDataSchema as salesforce_zod_ts } from "./salesforce/zod";
+import { appDataSchema as serefinvideo_zod_ts } from "./serefinvideo/zod";
 import { appDataSchema as shimmervideo_zod_ts } from "./shimmervideo/zod";
 import { appDataSchema as stripepayment_zod_ts } from "./stripepayment/zod";
 import { appDataSchema as tandemvideo_zod_ts } from "./tandemvideo/zod";
@@ -79,6 +80,7 @@ export const appDataSchemas = {
   qr_code: qr_code_zod_ts,
   "routing-forms": routing_forms_zod_ts,
   salesforce: salesforce_zod_ts,
+  serefinvideo: serefinvideo_zod_ts,
   shimmervideo: shimmervideo_zod_ts,
   stripe: stripepayment_zod_ts,
   tandemvideo: tandemvideo_zod_ts,
