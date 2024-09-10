@@ -17,9 +17,10 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
     createMeeting: async (event: CalendarEvent): Promise<VideoCallData> => {
       const appKeys = await getAppKeysFromSlug("serefinvideo");
 
-      const booking = await prisma.booking.findUnique({ where: { uid: event.uid } });
+      const uid = event.uid || "";
 
-      // Recuperar metadata do booking
+      const booking = await prisma.booking.findUnique({ where: { uid } });
+
       const metadata = booking?.metadata || {};
       const meetingId = metadata.contact_id?.toString() || `unk-${uuidv4()}`;
 
@@ -31,7 +32,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       // Loop through appKeys and check the conditions
       for (const [key, value] of Object.entries(appKeys)) {
-        if (value && value.includes("::")) {
+        if (key && value && value.includes("::")) {
           const [url, roomUrl] = value.split("::");
           if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
             return Promise.resolve({
