@@ -27,10 +27,14 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       const booking = await prisma.booking.findUnique({ where: { uid } });
 
-      const metadata: Metadata = booking?.metadata || {};
+      // Verificando se o metadata é um objeto válido.
+      let metadata: Metadata = {};
+      if (booking?.metadata && typeof booking.metadata === "object" && !Array.isArray(booking.metadata)) {
+        metadata = booking.metadata as Metadata;
+      }
 
+      // Verificação para o campo contact_id
       let meetingId: string;
-
       if (typeof metadata.contact_id === "string" || typeof metadata.contact_id === "number") {
         meetingId = metadata.contact_id.toString();
       } else {
