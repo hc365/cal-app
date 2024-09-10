@@ -22,13 +22,31 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       const booking = await prisma.booking.findUnique({ where: { uid } });
 
       const metadata = booking?.metadata || {};
-      const meetingId = metadata.contact_id?.toString() || `unk-${uuidv4()}`;
 
-      const lang = metadata.lang || metadata.preferred_language || "en";
+      let meetingId: string;
+
+      if (typeof metadata.contact_id === "string" || typeof metadata.contact_id === "number") {
+        meetingId = metadata.contact_id.toString();
+      } else {
+        meetingId = `unk-${uuidv4()}`;
+      }
+
+      const lang =
+        typeof metadata.lang === "string"
+          ? metadata.lang
+          : typeof metadata.preferred_language === "string"
+          ? metadata.preferred_language
+          : "en";
+
       const duration = getDuration(event.endTime, event.startTime);
-      const meetingType = event.type;
+      const meetingType = typeof event.type === "string" ? event.type : "unknown";
 
-      const clientUrl = event.bookerUrl || NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "");
+      const clientUrl =
+        typeof event.bookerUrl === "string"
+          ? event.bookerUrl
+          : typeof NEXT_PUBLIC_WEBAPP_URL === "string"
+          ? NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "")
+          : "default-url";
 
       // Loop through appKeys and check the conditions
       for (const [key, value] of Object.entries(appKeys)) {
