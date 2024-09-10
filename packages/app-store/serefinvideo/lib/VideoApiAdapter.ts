@@ -21,10 +21,8 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       return Promise.resolve([]);
     },
     createMeeting: async (event: CalendarEvent): Promise<VideoCallData> => {
-      const appKeys = await getAppKeysFromSlug("serefinvideo");
-
-      const uid = event.uid || "";
-
+      const appKeys: Record<string, string> = await getAppKeysFromSlug("serefinvideo");
+      const uid: string = event.uid || "";
       const booking = await prisma.booking.findUnique({ where: { uid } });
 
       // Verificando se o metadata é um objeto válido.
@@ -41,17 +39,17 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
         meetingId = `unk-${uuidv4()}`;
       }
 
-      const lang =
+      const lang: string =
         typeof metadata.lang === "string"
           ? metadata.lang
           : typeof metadata.preferred_language === "string"
           ? metadata.preferred_language
           : "en";
 
-      const duration = getDuration(event.endTime, event.startTime);
-      const meetingType = typeof event.type === "string" ? event.type : "unknown";
+      const duration: string = getDuration(event.endTime, event.startTime);
+      const meetingType: string = typeof event.type === "string" ? event.type : "unknown";
 
-      const clientUrl =
+      const clientUrl: string =
         typeof event.bookerUrl === "string"
           ? event.bookerUrl
           : typeof process.env.NEXT_PUBLIC_WEBAPP_URL === "string"
@@ -60,7 +58,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       // Loop through appKeys and check the conditions
       for (const [key, value] of Object.entries(appKeys)) {
-        if (key && value && value.includes("::")) {
+        if (key && typeof value === "string" && value.includes("::")) {
           const [url, roomUrl] = value.split("::");
           if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
             return Promise.resolve({
