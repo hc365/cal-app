@@ -21,7 +21,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       return Promise.resolve([]);
     },
     createMeeting: async (event: CalendarEvent): Promise<VideoCallData> => {
-      const appKeys: Record<string, string> = await getAppKeysFromSlug("serefinvideo");
+      const appKeys = await getAppKeysFromSlug("serefinvideo");
       const uid: string = event.uid || "";
       const booking = await prisma.booking.findUnique({ where: { uid } });
 
@@ -57,20 +57,24 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           : "default-url";
 
       // Loop through appKeys and check the conditions
-      for (const [key, value] of Object.entries(appKeys)) {
-        if (key && typeof value === "string" && value.includes("::")) {
-          const [url, roomUrl] = value.split("::");
-          if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
-            return Promise.resolve({
-              type: "serefin_video",
-              id: meetingId,
-              password: "",
-              url: `https://${roomUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
-                meetingType
-              )}`,
-            });
+      if (typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
+        for (const [key, value] of Object.entries(appKeys as Record<string, string>)) {
+          if (key && typeof value === "string" && value.includes("::")) {
+            const [url, roomUrl] = value.split("::");
+            if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
+              return Promise.resolve({
+                type: "serefin_video",
+                id: meetingId,
+                password: "",
+                url: `https://${roomUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
+                  meetingType
+                )}`,
+              });
+            }
           }
         }
+      } else {
+        console.error("Invalid appKeys format", appKeys);
       }
 
       // Default response if no matching appKey found
