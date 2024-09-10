@@ -27,7 +27,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       const duration = getDuration(event.endTime, event.startTime);
       const meetingType = event.type;
 
-      const clientUrl = event.bookerUrl || NEXT_PUBLIC_WEBAPP_URL;
+      const clientUrl = event.bookerUrl || NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "");
 
       // Loop through appKeys and check the conditions
       for (const [key, value] of Object.entries(appKeys)) {
