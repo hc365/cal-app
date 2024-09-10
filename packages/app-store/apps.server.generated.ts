@@ -63,6 +63,7 @@ export const apiHandlers = {
   salesforce: import("./salesforce/api"),
   salesroom: import("./salesroom/api"),
   sendgrid: import("./sendgrid/api"),
+  serefinvideo: import("./serefinvideo/api"),
   shimmervideo: import("./shimmervideo/api"),
   signal: import("./signal/api"),
   sirius_video: import("./sirius_video/api"),

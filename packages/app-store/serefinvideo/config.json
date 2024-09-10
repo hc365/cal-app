@@ -1,0 +1,23 @@
+{
+  "/*": "Don't modify slug - If required, do it using cli edit command",
+  "name": "Serefin Video",
+  "slug": "serefinvideo",
+  "type": "serefin_video",
+  "logo": "icon.svg",
+  "url": "https://example.com/link",
+  "variant": "conferencing",
+  "categories": ["conferencing"],
+  "publisher": "Serefin",
+  "email": "",
+  "description": "Serefin Video Room",
+  "isTemplate": false,
+  "__createdUsingCli": true,
+  "__template": "basic",
+  "appData": {
+    "location": {
+      "linkType": "dynamic",
+      "type": "integrations:serefin_video",
+      "label": "Video Conference"
+    }
+  }
+}
