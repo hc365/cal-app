@@ -8,6 +8,12 @@ import type { VideoApiAdapter, VideoCallData } from "@calcom/types/VideoApiAdapt
 
 import getAppKeysFromSlug from "../../_utils/getAppKeysFromSlug";
 
+interface Metadata {
+  contact_id?: string | number;
+  lang?: string;
+  preferred_language?: string;
+}
+
 const SerefinVideoApiAdapter = (): VideoApiAdapter => {
   return {
     /** Serefin doesn't need to return busy times, so we return empty */
@@ -21,7 +27,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       const booking = await prisma.booking.findUnique({ where: { uid } });
 
-      const metadata = booking?.metadata || {};
+      const metadata: Metadata = booking?.metadata || {};
 
       let meetingId: string;
 
