@@ -11,6 +11,7 @@
   "email": "",
   "description": "Serefin Video Room",
   "isTemplate": false,
+  "isGlobal": true,
   "__createdUsingCli": true,
   "__template": "basic",
   "appData": {
