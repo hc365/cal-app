@@ -12,6 +12,7 @@
   "description": "Serefin Video Room",
   "isTemplate": false,
   "isGlobal": true,
+  "isOAuth": false,
   "__createdUsingCli": true,
   "__template": "basic",
   "appData": {
