@@ -44,14 +44,58 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: cal-com-care-concierge
-          IMAGE_TAG: ${{ github.ref_name }}
+          ecr_registry: ${{ steps.login-ecr.outputs.registry }}
+          ecr_repository: cal-com-care-concierge
+          image_tag: ${{ github.ref_name }}
         run: |
           docker build --build-arg NEXT_PUBLIC_WEBAPP=https://calendar.serefin.com -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      # Set environment-specific variables for UAT (main branch)
+      - name: Set environment variables for UAT
+        if: github.ref == 'refs/heads/main'  # UAT deployment
+        run: |
+          echo "ECS_CLUSTER=${{ env.UAT_ECS_CLUSTER }}" >> $GITHUB_ENV
+          echo "ECS_SERVICE=${{ env.UAT_ECS_SERVICE }}" >> $GITHUB_ENV
+
+      # Set environment-specific variables for PROD (SEMVER tags)
+      - name: Set environment variables for PROD
+        if: startsWith(github.ref, 'refs/tags/v')  # PROD deployment
+        run: |
+          echo "ECS_CLUSTER=${{ env.PROD_ECS_CLUSTER }}" >> $GITHUB_ENV
+          echo "ECS_SERVICE=${{ env.PROD_ECS_SERVICE }}" >> $GITHUB_ENV
+
+      # Fetch the most recent task definition for the ECS service
+      - name: Fetch latest task definition
+        id: fetch-task-definition
+        run: |
+          latest_task_arn=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }} --query 'services[0].taskDefinition' --output text)
+          latest_task_definition=$(aws ecs describe-task-definition --task-definition "$latest_task_arn" --output json)
+          echo "$latest_task_definition" > latest-task-definition.json
+          echo "LATEST_TASK_DEFINITION=$latest_task_arn" >> $GITHUB_ENV
+
+      - name: Render Amazon ECS task definition
+        id: render-web-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ecr_registry: ${{ steps.login-ecr.outputs.registry }}
+          ecr_repository: cal-com-care-concierge
+          image_tag: ${{ github.ref_name }}
+        with:
+          task-definition: latest-task-definition.json
+          container-name: web
+          image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy ECS task definition
+        id: deploy-task
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
 
       - name: Logout of Amazon ECR
         if: always()
