@@ -45,9 +45,9 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ecr_registry: ${{ steps.login-ecr.outputs.registry }}
-          ecr_repository: cal-com-care-concierge
-          image_tag: ${{ github.ref_name }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cal-com-care-concierge
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
           docker build --build-arg NEXT_PUBLIC_WEBAPP=https://calendar.serefin.com -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
