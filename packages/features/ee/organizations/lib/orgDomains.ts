@@ -42,9 +42,21 @@ export function getOrgSlug(hostname: string, forcedSlug?: string) {
     log.warn("Match of WEBAPP_URL with ALLOWED_HOSTNAME failed", { WEBAPP_URL, ALLOWED_HOSTNAMES });
     return null;
   }
+
+  const url = new URL(WEBAPP_URL);
+  if (hostname === url.hostname) {
+    return null; // Host principal, sem slug
+  }
+
   // Define which is the current domain/subdomain
-  const slug = hostname.replace(`.${currentHostname}` ?? "", "");
-  return slug ?? null;
+  const slug = hostname.endsWith(`.${currentHostname}`) ? hostname.replace(`.${currentHostname}`, "") : "";
+
+  if (!slug) {
+    log.warn("Non-local subdomain hostname", { hostname });
+    return null;
+  }
+
+  return slug;
 }
 
 export function orgDomainConfig(req: IncomingMessage | undefined, fallback?: string | string[]) {
