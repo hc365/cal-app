@@ -78,7 +78,7 @@ jobs:
         run: |
           latest_task_arn=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }} --query 'services[0].taskDefinition' --output text)
           latest_task_definition=$(aws ecs describe-task-definition --task-definition "$latest_task_arn" --output json)
-          echo "$latest_task_definition" > latest-task-definition.json
+          echo "$latest_task_definition" > ${{ env.RUNNER_TEMP }}/latest-task-definition.json
           echo "LATEST_TASK_DEFINITION=$latest_task_arn" >> $GITHUB_ENV
 
       - name: Render Amazon ECS task definition
@@ -89,7 +89,7 @@ jobs:
           ecr_repository: cal-com-care-concierge
           image_tag: ${{ github.ref_name }}
         with:
-          task-definition: latest-task-definition.json
+          task-definition: "${{ env.RUNNER_TEMP }}/latest-task-definition.json"
           container-name: web
           image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
