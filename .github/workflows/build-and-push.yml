@@ -109,7 +109,7 @@ jobs:
         with:
           task-definition-arn: ${{ env.LATEST_TASK_DEFINITION }}
           container-name: web
-          image: "${{ ECR_REGISTRY }}/${{ ECR_REPOSITORY }}:${{ IMAGE_TAG }}"
+          image: "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
 
       - name: Deploy ECS task definition
         id: deploy-task
