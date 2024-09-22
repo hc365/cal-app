@@ -58,8 +58,8 @@ jobs:
       - name: Set environment variables for UAT
         if: github.ref == 'refs/heads/main'  # UAT deployment
         run: |
-          ECS_CLUSTER="${{ env.UAT_ECS_CLUSTER }}"
-          ECS_SERVICE="${{ env.UAT_ECS_SERVICE }}"
+          ECS_CLUSTER="${{ vars.UAT_ECS_CLUSTER }}"
+          ECS_SERVICE="${{ vars.UAT_ECS_SERVICE }}"
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
 
@@ -67,8 +67,8 @@ jobs:
       - name: Set environment variables for PROD
         if: startsWith(github.ref, 'refs/tags/v')  # PROD deployment
         run: |
-          ECS_CLUSTER="${{ env.PROD_ECS_CLUSTER }}"
-          ECS_SERVICE="${{ env.PROD_ECS_SERVICE }}"
+          ECS_CLUSTER="${{ vars.PROD_ECS_CLUSTER }}"
+          ECS_SERVICE="${{ vars.PROD_ECS_SERVICE }}"
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
 
