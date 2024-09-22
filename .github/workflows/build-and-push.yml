@@ -60,8 +60,8 @@ jobs:
         run: |
           ECS_CLUSTER="${{ env.UAT_ECS_CLUSTER }}"
           ECS_SERVICE="${{ env.UAT_ECS_SERVICE }}"
-          echo "ECS_CLUSTER=${ ECS_CLUSTER }" >> $GITHUB_ENV
-          echo "ECS_SERVICE=${ ECS_SERVICE }" >> $GITHUB_ENV
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
 
       # Set environment-specific variables for PROD (SEMVER tags)
       - name: Set environment variables for PROD
@@ -69,8 +69,8 @@ jobs:
         run: |
           ECS_CLUSTER="${{ env.PROD_ECS_CLUSTER }}"
           ECS_SERVICE="${{ env.PROD_ECS_SERVICE }}"
-          echo "ECS_CLUSTER=${ ECS_CLUSTER }" >> $GITHUB_ENV
-          echo "ECS_SERVICE=${ ECS_SERVICE }" >> $GITHUB_ENV
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
 
       # Fetch the most recent task definition for the ECS service
       - name: Fetch latest task definition
