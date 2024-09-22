@@ -60,6 +60,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       # Set environment-specific variables for UAT (main branch)
       - name: Set environment variables for UAT
