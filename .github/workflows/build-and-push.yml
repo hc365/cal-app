@@ -59,6 +59,7 @@ jobs:
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 
   deploy:
+    timeout-minutes: 60 # Increase this timeout value as needed
     runs-on: ubuntu-latest
     needs: build
     steps:
