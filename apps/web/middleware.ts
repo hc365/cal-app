@@ -1,7 +1,7 @@
+// middleware.js
 import { get } from "@vercel/edge-config";
 import { collectEvents } from "next-collect/server";
 import { cookies } from "next/headers";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { getLocale } from "@calcom/features/auth/lib/getLocale";
@@ -11,30 +11,57 @@ import { csp } from "@lib/csp";
 
 import { abTestMiddlewareFactory } from "./abTest/middlewareFactory";
 
-const safeGet = async <T = any>(key: string): Promise<T | undefined> => {
+// Função para parsear ALLOWED_HOSTNAMES
+const parseAllowedHostnames = () => {
+  const allowedHostnamesEnv = process.env.ALLOWED_HOSTNAMES || "";
+  // Remove aspas e divide por vírgula
+  return allowedHostnamesEnv
+    .split(",")
+    .map((host) => host.trim().replace(/^"|"$/g, ""))
+    .filter((host) => host.length > 0);
+};
+
+// Obter a lista de hostnames permitidos
+const ALLOWED_HOSTNAMES = parseAllowedHostnames();
+
+// Função para verificar se a origem é permitida
+const isOriginAllowed = (origin) => {
+  if (!origin) return false;
   try {
-    return get<T>(key);
-  } catch (error) {
-    // Don't crash if EDGE_CONFIG env var is missing
+    const url = new URL(origin);
+    return ALLOWED_HOSTNAMES.includes(url.hostname) || ALLOWED_HOSTNAMES.includes(url.host);
+  } catch (e) {
+    return false;
   }
 };
 
-const middleware = async (req: NextRequest): Promise<NextResponse<unknown>> => {
+const safeGet = async (key) => {
+  try {
+    return await get(key);
+  } catch (error) {
+    // Não falhe se a variável de ambiente EDGE_CONFIG estiver faltando
+    return undefined;
+  }
+};
+
+const middleware = async (req) => {
   const url = req.nextUrl;
   const requestHeaders = new Headers(req.headers);
 
   requestHeaders.set("x-url", req.url);
 
+  // Lógica de CORS
+  const origin = req.headers.get("origin");
+
+  if (origin && isOriginAllowed(origin)) {
+    requestHeaders.set("Access-Control-Allow-Origin", origin);
+    requestHeaders.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    requestHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
+
   if (!url.pathname.startsWith("/api")) {
-    //
-    // NOTE: When tRPC hits an error a 500 is returned, when this is received
-    //       by the application the user is automatically redirected to /auth/login.
-    //
-    //     - For this reason our matchers are sufficient for an app-wide maintenance page.
-    //
-    // Check whether the maintenance page should be shown
-    const isInMaintenanceMode = await safeGet<boolean>("isInMaintenanceMode");
-    // If is in maintenance mode, point the url pathname to the maintenance page
+    // Verificação de modo de manutenção
+    const isInMaintenanceMode = await safeGet("isInMaintenanceMode");
     if (isInMaintenanceMode) {
       req.nextUrl.pathname = `/maintenance`;
       return NextResponse.rewrite(req.nextUrl);
@@ -48,7 +75,7 @@ const middleware = async (req: NextRequest): Promise<NextResponse<unknown>> => {
   if (!process.env.CSP_POLICY) {
     req.headers.set("x-csp", "not-opted-in");
   } else if (!req.headers.get("x-csp")) {
-    // If x-csp not set by gSSP, then it's initialPropsOnly
+    // Se x-csp não estiver definido por gSSP, então é initialPropsOnly
     req.headers.set("x-csp", "initialPropsOnly");
   } else {
     req.headers.set("x-csp", nonce ?? "");
@@ -63,15 +90,14 @@ const middleware = async (req: NextRequest): Promise<NextResponse<unknown>> => {
   }
 
   if (url.pathname.startsWith("/api/auth/signup")) {
-    const isSignupDisabled = await safeGet<boolean>("isSignupDisabled");
-    // If is in maintenance mode, point the url pathname to the maintenance page
+    const isSignupDisabled = await safeGet("isSignupDisabled");
     if (isSignupDisabled) {
       return NextResponse.json({ error: "Signup is disabled" }, { status: 503 });
     }
   }
 
   if (url.pathname.startsWith("/auth/login") || url.pathname.startsWith("/login")) {
-    // Use this header to actually enforce CSP, otherwise it is running in Report Only mode on all pages.
+    // Use este cabeçalho para realmente impor CSP, caso contrário, está rodando em modo Report Only em todas as páginas.
     requestHeaders.set("x-csp-enforce", "true");
   }
 
@@ -113,8 +139,8 @@ const middleware = async (req: NextRequest): Promise<NextResponse<unknown>> => {
 };
 
 const routingForms = {
-  handle: (url: URL) => {
-    // Don't 404 old routing_forms links
+  handle: (url) => {
+    // Não 404 links antigos de routing_forms
     if (url.pathname.startsWith("/apps/routing_forms")) {
       url.pathname = url.pathname.replace(/^\/apps\/routing_forms($|\/)/, "/apps/routing-forms/");
       return NextResponse.rewrite(url);
@@ -123,7 +149,7 @@ const routingForms = {
 };
 
 export const config = {
-  // Next.js Doesn't support spread operator in config matcher, so, we must list all paths explicitly here.
+  // Next.js não suporta operador spread no matcher de configuração, então, devemos listar todos os caminhos explicitamente aqui.
   // https://github.com/vercel/next.js/discussions/42458
   matcher: [
     "/:path*/embed",
@@ -133,7 +159,7 @@ export const config = {
     "/auth/login",
     "/future/auth/login",
     /**
-     * Paths required by routingForms.handle
+     * Caminhos necessários para routingForms.handle
      */
     "/apps/routing_forms/:path*",
 
