@@ -32,6 +32,15 @@ jobs:
         run: |
           echo "ENVIRONMENT=production" >> "$GITHUB_ENV"
 
+      # extract branch name
+      - name: Extract branch name and timestamp
+        shell: bash
+        run: |
+          echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=timestamp::$(date +%s)"
+          echo "::set-output name=sha_short::${GITHUB_SHA::8}"
+        id: extract_branch
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -47,7 +56,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: cal-com-care-concierge
-          IMAGE_TAG: ${{ github.ref_name }}
+          IMAGE_TAG: "${{ github.ref_name }}-${{ steps.extract_branch.outputs.sha_short }}"
         run: |
           docker build --build-arg NEXT_PUBLIC_WEBAPP=https://calendar.serefin.com -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -100,13 +109,22 @@ jobs:
           # aws ecs describe-task-definition --task-definition "$latest_task_arn" --output json > latest-task-definition.json
           echo "LATEST_TASK_DEFINITION=$latest_task_arn" >> $GITHUB_ENV
 
+      # extract branch name
+      - name: Extract branch name and timestamp
+        shell: bash
+        run: |
+          echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=timestamp::$(date +%s)"
+          echo "::set-output name=sha_short::${GITHUB_SHA::8}"
+        id: extract_branch
+
       - name: Render Amazon ECS task definition
         id: render-web-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: cal-com-care-concierge
-          IMAGE_TAG: ${{ github.ref_name }}
+          IMAGE_TAG: "${{ github.ref_name }}-${{ steps.extract_branch.outputs.sha_short }}"
         with:
           task-definition-arn: ${{ env.LATEST_TASK_DEFINITION }}
           container-name: web
