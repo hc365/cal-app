@@ -50,7 +50,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       const clientUrl: string =
         typeof event.bookerUrl === "string"
-          ? event.bookerUrl
+          ? event.bookerUrl.replace(/^https?:\/\//, "")
           : typeof process.env.NEXT_PUBLIC_WEBAPP_URL === "string"
           ? process.env.NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "")
           : "default-url";
