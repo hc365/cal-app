@@ -35,7 +35,7 @@ export function getOrgSlug(hostname: string, forcedSlug?: string) {
   const currentHostname = ALLOWED_HOSTNAMES.find((ahn) => {
     const url = new URL(WEBAPP_URL);
     const testHostname = `${url.hostname}${url.port ? `:${url.port}` : ""}`;
-    return testHostname.endsWith(`.${ahn}`);
+    return testHostname.endsWith(`.${ahn}`) || testHostname === ahn;
   });
 
   if (!currentHostname) {
