@@ -295,6 +295,8 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
+    console.error("Entering on rewrites...");
+
     const beforeFiles = [
       {
         source: "/forms/:formQuery*",
@@ -358,7 +360,7 @@ const nextConfig = {
         : []),
     ];
 
-    console.warn("Rules: ", beforeFiles);
+    console.error("Rules", beforeFiles);
 
     let afterFiles = [
       {
