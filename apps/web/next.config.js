@@ -18,7 +18,6 @@ if (!process.env.CALENDSO_ENCRYPTION_KEY) throw new Error("Please set CALENDSO_E
 const isOrganizationsEnabled =
   process.env.ORGANIZATIONS_ENABLED === "1" || process.env.ORGANIZATIONS_ENABLED === "true";
 
-console.warn("isOrganizationsEnabled: ", isOrganizationsEnabled, process.env.ORGANIZATIONS_ENABLED);
 // To be able to use the version in the app without having to import package.json
 process.env.NEXT_PUBLIC_CALCOM_VERSION = version;
 
@@ -295,8 +294,6 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
-    console.error("Entering on rewrites...");
-
     const beforeFiles = [
       {
         source: "/forms/:formQuery*",
@@ -359,8 +356,6 @@ const nextConfig = {
           ]
         : []),
     ];
-
-    console.error("Rules", beforeFiles);
 
     let afterFiles = [
       {
