@@ -17,6 +17,8 @@ if (!process.env.NEXTAUTH_SECRET) throw new Error("Please set NEXTAUTH_SECRET");
 if (!process.env.CALENDSO_ENCRYPTION_KEY) throw new Error("Please set CALENDSO_ENCRYPTION_KEY");
 const isOrganizationsEnabled =
   process.env.ORGANIZATIONS_ENABLED === "1" || process.env.ORGANIZATIONS_ENABLED === "true";
+
+console.warn("isOrganizationsEnabled: ", isOrganizationsEnabled, process.env.ORGANIZATIONS_ENABLED);
 // To be able to use the version in the app without having to import package.json
 process.env.NEXT_PUBLIC_CALCOM_VERSION = version;
 
@@ -169,6 +171,14 @@ const matcherConfigUserTypeEmbedRoute = {
   ],
   source: orgUserTypeEmbedRoutePath,
 };
+
+console.warn(
+  "Matchers: ",
+  matcherConfigRootPath,
+  matcherConfigUserRoute,
+  matcherConfigUserTypeRoute,
+  matcherConfigUserTypeEmbedRoute
+);
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
@@ -347,6 +357,8 @@ const nextConfig = {
           ]
         : []),
     ];
+
+    console.warn("Rules: ", beforeFiles);
 
     let afterFiles = [
       {
