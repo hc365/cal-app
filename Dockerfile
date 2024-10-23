@@ -9,6 +9,7 @@ ARG NEXTAUTH_SECRET=secret
 ARG CALENDSO_ENCRYPTION_KEY=secret
 ARG MAX_OLD_SPACE_SIZE=8192
 ARG NEXT_PUBLIC_API_V2_URL
+ARG ORGANIZATIONS_ENABLED
 
 ENV NEXT_PUBLIC_WEBAPP_URL=http://NEXT_PUBLIC_WEBAPP_URL_PLACEHOLDER \
   NEXT_PUBLIC_API_V2_URL=$NEXT_PUBLIC_API_V2_URL \
@@ -19,10 +20,10 @@ ENV NEXT_PUBLIC_WEBAPP_URL=http://NEXT_PUBLIC_WEBAPP_URL_PLACEHOLDER \
   NEXTAUTH_SECRET=${NEXTAUTH_SECRET} \
   CALENDSO_ENCRYPTION_KEY=${NEXTAUTH_SECRET} \
   NODE_OPTIONS=--max-old-space-size=${MAX_OLD_SPACE_SIZE} \
-  BUILD_STANDALONE=true
+  BUILD_STANDALONE=true \
+  ORGANIZATIONS_ENABLED=$ORGANIZATIONS_ENABLED
 
-# Include next.config.js in the COPY command
-COPY package.json yarn.lock .yarnrc.yml playwright.config.ts turbo.json git-init.sh git-setup.sh next.config.js ./
+COPY package.json yarn.lock .yarnrc.yml playwright.config.ts turbo.json git-init.sh git-setup.sh ./
 COPY .yarn ./.yarn
 COPY apps/web ./apps/web
 COPY apps/api/v2 ./apps/api/v2
@@ -49,8 +50,6 @@ ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
 
 ENV NODE_ENV production
 
-# Copy next.config.js from the builder stage
-COPY --from=builder /calcom/next.config.js ./next.config.js
 COPY package.json .yarnrc.yml turbo.json ./
 COPY .yarn ./.yarn
 COPY --from=builder /calcom/yarn.lock ./yarn.lock
@@ -69,9 +68,8 @@ RUN scripts/replace-placeholder.sh http://NEXT_PUBLIC_WEBAPP_URL_PLACEHOLDER ${N
 
 FROM node:18-alpine as runner
 
-WORKDIR /calcom
 
-# Copy everything from builder-two, including next.config.js
+WORKDIR /calcom
 COPY --from=builder-two /calcom ./
 ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
 ENV NEXT_PUBLIC_WEBAPP_URL=$NEXT_PUBLIC_WEBAPP_URL \
