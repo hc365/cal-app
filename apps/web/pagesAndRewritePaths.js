@@ -20,9 +20,11 @@ let pages = (exports.pages = glob
 const { subdomainRegExp, escapedBaseDomain } = getSubdomainRegExp(
   process.env.NEXT_PUBLIC_WEBAPP_URL || `https://${process.env.VERCEL_URL}`
 );
+console.warn(subdomainRegExp, escapedBaseDomain);
 // Construir orgHostPath e nomear o grupo orgSlug aqui
 exports.orgHostPath = `^(?<orgSlug>${subdomainRegExp})\\.${escapedBaseDomain}$`;
 
+console.warn(`^(?<orgSlug>${subdomainRegExp})\\.${escapedBaseDomain}$`);
 /**
  * Returns a regex that matches all existing routes, virtual routes (like /forms, /router, /success etc) and nextjs special paths (_next, public)
  */

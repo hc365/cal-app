@@ -348,6 +348,8 @@ const nextConfig = {
         : []),
     ];
 
+    console.warn("Is organizations enabled: ", isOrganizationsEnabled);
+
     let afterFiles = [
       {
         source: "/api/v2/:path*",
