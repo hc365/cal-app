@@ -71,7 +71,7 @@ jobs:
           ECR_REPOSITORY: cal-com-care-concierge
           IMAGE_TAG: "${{ github.ref_name }}-${{ steps.extract_branch.outputs.sha_short }}"
         run: |
-          docker build --build-arg ORGANIZATIONS_ENABLED=${ORGANIZATIONS_ENABLED} --build-arg NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --build-arg NEXT_PUBLIC_API_V2_URL=http://localhost:80 --build-arg ORGANIZATIONS_ENABLED=${ORGANIZATIONS_ENABLED} --build-arg NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest

@@ -24,7 +24,6 @@ console.warn(subdomainRegExp, escapedBaseDomain);
 // Construir orgHostPath e nomear o grupo orgSlug aqui
 exports.orgHostPath = `^(?<orgSlug>${subdomainRegExp})\\.${escapedBaseDomain}$`;
 
-console.warn(`^(?<orgSlug>${subdomainRegExp})\\.${escapedBaseDomain}$`);
 /**
  * Returns a regex that matches all existing routes, virtual routes (like /forms, /router, /success etc) and nextjs special paths (_next, public)
  */

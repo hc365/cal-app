@@ -37,6 +37,7 @@ RUN yarn install
 # RUN yarn --cwd packages/prisma seed-app-store
 # Build and make embed servable from web/public/embed folder
 RUN yarn --cwd packages/embeds/embed-core workspace @calcom/embed-core run build
+ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
 RUN yarn --cwd apps/web workspace @calcom/web run build
 
 # RUN yarn plugin import workspace-tools && \
@@ -46,7 +47,6 @@ RUN rm -rf node_modules/.cache .yarn/cache apps/web/.next/cache
 FROM node:18-alpine as builder-two
 
 WORKDIR /calcom
-ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
 
 ENV NODE_ENV production
 
