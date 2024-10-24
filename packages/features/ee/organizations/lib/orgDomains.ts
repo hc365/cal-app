@@ -44,7 +44,7 @@ export function getOrgSlug(hostname: string, forcedSlug?: string) {
   }
 
   const url = new URL(WEBAPP_URL);
-  if (hostname === url.hostname) {
+  if (hostname === `${url.hostname}${url.port ? `:${url.port}` : ""}`) {
     return null; // Host principal, sem slug
   }
 

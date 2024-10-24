@@ -17,11 +17,11 @@ let pages = (exports.pages = glob
 // ?!book ensures it doesn't match /free/book page which doesn't have a corresponding new-booker page.
 // [^/]+ makes the RegExp match the full path, it seems like a partial match doesn't work.
 // book$ ensures that only /book is excluded from rewrite(which is at the end always) and not /booked
-
-let subdomainRegExp = (exports.subdomainRegExp = getSubdomainRegExp(
+const { subdomainRegExp, escapedBaseDomain } = getSubdomainRegExp(
   process.env.NEXT_PUBLIC_WEBAPP_URL || `https://${process.env.VERCEL_URL}`
-));
-exports.orgHostPath = `^(?<orgSlug>${subdomainRegExp})\\.(?!vercel\.app).*`;
+);
+// Construir orgHostPath e nomear o grupo orgSlug aqui
+exports.orgHostPath = `^(?<orgSlug>${subdomainRegExp})\\.${escapedBaseDomain}$`;
 
 /**
  * Returns a regex that matches all existing routes, virtual routes (like /forms, /router, /success etc) and nextjs special paths (_next, public)

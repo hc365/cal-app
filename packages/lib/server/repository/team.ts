@@ -71,7 +71,9 @@ async function getTeamOrOrg<TeamSelect extends Prisma.TeamSelect>({
     // We must fetch only the team here.
   } else {
     if (forOrgWithSlug) {
-      where.parent = whereClauseForOrgWithSlugOrRequestedSlug(forOrgWithSlug);
+      where.parent = whereClauseForOrgWithSlugOrRequestedSlug(forOrgWithSlug) ?? null;
+    } else {
+      where.parentId = null;
     }
   }
 
