@@ -179,7 +179,7 @@ PageProps & WithNonceProps<{}>) {
     : isSAMLLoginEnabled && !isPending && data?.connectionExists;
 
   return (
-    <div className="dark:bg-brand dark:text-brand-contrast text-emphasis min-h-screen [--cal-brand-emphasis:#024c30] [--cal-brand-subtle:#04744a] [--cal-brand-text:white] [--cal-brand:#02794b] dark:[--cal-brand-emphasis:#e1e1e1] dark:[--cal-brand-text:black] dark:[--cal-brand:white]">
+    <div className="dark:bg-brand dark:text-brand-contrast text-emphasis min-h-screen [--cal-brand-emphasis:#036e46] [--cal-brand-subtle:#04744a] [--cal-brand-text:white] [--cal-brand:#02794b] dark:[--cal-brand-emphasis:#e1e1e1] dark:[--cal-brand-text:black] dark:[--cal-brand:white]">
       <AuthContainer
         title={t("login")}
         description={t("login")}

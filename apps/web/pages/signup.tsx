@@ -316,7 +316,7 @@ export default function Signup({
           "light bg-muted 2xl:bg-default flex min-h-screen w-full flex-col items-center justify-center [--cal-brand:#02794b] dark:[--cal-brand:#FFFFFF]",
           "[--cal-brand-subtle:#9CA3AF]",
           "[--cal-brand-text:#FFFFFF] dark:[--cal-brand-text:#000000]",
-          "[--cal-brand-emphasis:#024c30] dark:[--cal-brand-emphasis:#e1e1e1] "
+          "[--cal-brand-emphasis:#036e46] dark:[--cal-brand-emphasis:#e1e1e1] "
         )}>
         <div className="bg-muted 2xl:border-subtle grid w-full max-w-[1440px] grid-cols-1 grid-rows-1 overflow-hidden lg:grid-cols-2 2xl:rounded-[20px] 2xl:border 2xl:py-6">
           <HeadSeo title={t("sign_up")} description={t("sign_up")} />
