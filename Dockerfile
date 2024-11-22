@@ -37,7 +37,8 @@ RUN yarn install
 # RUN yarn --cwd packages/prisma seed-app-store
 # Build and make embed servable from web/public/embed folder
 ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
-ENV NEXT_PUBLIC_WEBAPP_URL=$NEXT_PUBLIC_WEBAPP_URL 
+ENV NEXT_PUBLIC_WEBAPP_URL=$NEXT_PUBLIC_WEBAPP_URL
+ENV NEXTAUTH_URL=$NEXT_PUBLIC_WEBAPP_URL
 RUN yarn --cwd packages/embeds/embed-core workspace @calcom/embed-core run build
 RUN yarn --cwd apps/web workspace @calcom/web run build
 ENV NEXT_PUBLIC_WEBAPP_URL=http://NEXT_PUBLIC_WEBAPP_URL_PLACEHOLDER
