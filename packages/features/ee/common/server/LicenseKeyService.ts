@@ -90,14 +90,16 @@ class LicenseKeyService implements ILicenseKeyService {
     /** We skip for E2E testing */
     if (process.env.NEXT_PUBLIC_IS_E2E === "1") return true;
     /** We check first on env */
-    const url = `${this.baseUrl}/v1/license/${this.licenseKey}`;
+    // @HOTFIX - the old url is returning the license as invalid
+    //const url = `${this.baseUrl}/v1/license/${this.licenseKey}`;
+    const url = `https://console.cal.com/api/license?key=${this.licenseKey}`;
     const cachedResponse = cache.get(url);
     if (cachedResponse) return cachedResponse;
     try {
       const response = await this.fetcher({ url, options: { mode: "cors" } });
       const data = await response.json();
-      cache.put(url, data.status, this.CACHING_TIME);
-      return data.status;
+      cache.put(url, data.valid, this.CACHING_TIME);
+      return data.valid;
     } catch (error) {
       console.error("Check license failed:", error);
       return false;
