@@ -2,7 +2,6 @@ import type { NextMiddleware } from "next-api-middleware";
 
 import { LicenseKeySingleton } from "@calcom/ee/common/server/LicenseKeyService";
 import { hashAPIKey } from "@calcom/features/ee/api-keys/lib/apiKeys";
-import { IS_PRODUCTION } from "@calcom/lib/constants";
 import prisma from "@calcom/prisma";
 
 import { isAdminGuard } from "../utils/isAdmin";
@@ -21,9 +20,10 @@ export const verifyApiKey: NextMiddleware = async (req, res, next) => {
   const licenseKeyService = await LicenseKeySingleton.getInstance();
   const hasValidLicense = await licenseKeyService.checkLicense();
 
-  if (!hasValidLicense && IS_PRODUCTION) {
+  //@TEMP: Remove this check when we have a valid license key
+  /*if (!hasValidLicense && IS_PRODUCTION) {
     return res.status(401).json({ error: "Invalid or missing CALCOM_LICENSE_KEY environment variable" });
-  }
+  }*/
   // Check if the apiKey query param is provided.
   if (!req.query.apiKey) return res.status(401).json({ message: "No apiKey provided" });
   // remove the prefix from the user provided api_key. If no env set default to "cal_"
