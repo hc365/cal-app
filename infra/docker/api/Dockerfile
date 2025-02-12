@@ -11,6 +11,8 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV="production" \
+    ORGANIZATIONS_ENABLED=$ORGANIZATIONS_ENABLED \
+    CALCOM_LICENSE_KEY=$CALCOM_LICENSE_KEY \
     DATABASE_URL=$DATABASE_URL \
     DATABASE_DIRECT_URL=$DATABASE_URL
 
@@ -51,12 +53,12 @@ RUN apt-get update -qq && \
 # Copy built application
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/api/package.json ./apps/api/package.json
-COPY --from=build /app/apps/api/next-i18next.config.js ./apps/api/next-i18next.config.js
-COPY --from=build /app/apps/api/next.config.js ./apps/api/next.config.js
-COPY --from=build /app/apps/api/tsconfig.json ./apps/api/tsconfig.json
-COPY --from=build /app/apps/api/.next ./apps/api/.next
-COPY --from=build /app/apps/api/.turbo ./apps/api/.turbo
+COPY --from=build /app/apps/api/v1/package.json ./apps/api/package.json
+COPY --from=build /app/apps/api/v1/next-i18next.config.js ./apps/api/next-i18next.config.js
+COPY --from=build /app/apps/api/v1/next.config.js ./apps/api/next.config.js
+COPY --from=build /app/apps/api/v1/tsconfig.json ./apps/api/tsconfig.json
+COPY --from=build /app/apps/api/v1/.next ./apps/api/.next
+COPY --from=build /app/apps/api/v1/.turbo ./apps/api/.turbo
 COPY --from=build /app/turbo.json ./turbo.json
 COPY --from=build /app/yarn.lock ./yarn.lock
 COPY --from=build /app/packages/config ./packages/config
