@@ -1,0 +1,171 @@
+name: Build and Push API Image to AWS ECR
+
+on:
+    push:
+      branches:
+        - staging
+        - uat
+        - main
+    workflow_dispatch:
+
+jobs:
+  build:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+
+      - name: Set variables
+        id: setvars
+        run: |
+          echo "ENVIRONMENT=production" >> "$GITHUB_ENV"
+
+      # Extract branch name, timestamp, and short commit SHA
+      - name: Extract branch and timestamp
+        shell: bash
+        run: |
+          echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=timestamp::$(date +%s)"
+          echo "::set-output name=sha_short::${GITHUB_SHA::8}"
+        id: extract_branch
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ca-central-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Environment-specific build variables for STAGING
+      - name: Set STAGING build variables
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          echo "API_ENV=staging" >> $GITHUB_ENV
+
+      # Environment-specific build variables for UAT
+      - name: Set UAT build variables
+        if: github.ref == 'refs/heads/uat'
+        run: |
+          echo "API_ENV=uat" >> $GITHUB_ENV
+
+      # Environment-specific build variables for PROD
+      - name: Set PROD build variables
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "API_ENV=production" >> $GITHUB_ENV
+
+      - name: Build, tag, and push API image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cal-com-care-concierge-api
+          IMAGE_TAG: "${{ github.ref_name }}-${{ steps.extract_branch.outputs.sha_short }}"
+        run: |
+          docker build \
+            --build-arg API_ENV=${API_ENV} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+  deploy:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ca-central-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Environment-specific variables for STAGING deployment
+      - name: Set STAGING deployment variables
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          ECS_CLUSTER="${{ vars.STAGING_ECS_CLUSTER }}"
+          ECS_SERVICE="${{ vars.STAGING_ECS_SERVICE }}"
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://staging.calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+
+      # Environment-specific variables for UAT deployment
+      - name: Set UAT deployment variables
+        if: github.ref == 'refs/heads/uat'
+        run: |
+          ECS_CLUSTER="${{ vars.UAT_ECS_CLUSTER }}"
+          ECS_SERVICE="${{ vars.UAT_ECS_SERVICE }}"
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://uat.calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+
+      # Environment-specific variables for PROD deployment
+      - name: Set PROD deployment variables
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ECS_CLUSTER="${{ vars.PROD_ECS_CLUSTER }}"
+          ECS_SERVICE="${{ vars.PROD_ECS_SERVICE }}"
+          echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+
+      # Fetch the most recent task definition for this ECS service
+      - name: Fetch latest task definition
+        id: fetch-task-definition
+        run: |
+          latest_task_arn=$(aws ecs describe-services \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }} \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          echo "LATEST_TASK_DEFINITION=$latest_task_arn" >> $GITHUB_ENV
+
+      - name: Extract branch and timestamp
+        shell: bash
+        run: |
+          echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=timestamp::$(date +%s)"
+          echo "::set-output name=sha_short::${GITHUB_SHA::8}"
+        id: extract_branch
+
+      - name: Render Amazon ECS task definition
+        id: render-api-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: cal-com-care-concierge-api
+          IMAGE_TAG: "${{ github.ref_name }}-${{ steps.extract_branch.outputs.sha_short }}"
+        with:
+          task-definition-arn: ${{ env.LATEST_TASK_DEFINITION }}
+          container-name: api
+          image: "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+
+      - name: Deploy ECS task definition
+        id: deploy-task
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-api-container.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
