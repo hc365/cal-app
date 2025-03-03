@@ -55,12 +55,12 @@ RUN apt-get update -qq && \
 # Copy built application
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/api/v1/package.json ./apps/api/package.json
-COPY --from=build /app/apps/api/v1/next-i18next.config.js ./apps/api/next-i18next.config.js
-COPY --from=build /app/apps/api/v1/next.config.js ./apps/api/next.config.js
-COPY --from=build /app/apps/api/v1/tsconfig.json ./apps/api/tsconfig.json
-COPY --from=build /app/apps/api/v1/.next ./apps/api/.next
-COPY --from=build /app/apps/api/v1/.turbo ./apps/api/.turbo
+COPY --from=build /app/apps/api/v1/package.json ./apps/api/v1/package.json
+COPY --from=build /app/apps/api/v1/next-i18next.config.js ./apps/api/v1/next-i18next.config.js
+COPY --from=build /app/apps/api/v1/next.config.js ./apps/api/v1/next.config.js
+COPY --from=build /app/apps/api/v1/tsconfig.json ./apps/api/v1/tsconfig.json
+COPY --from=build /app/apps/api/v1/.next ./apps/api/v1/.next
+COPY --from=build /app/apps/api/v1/.turbo ./apps/api/v1/.turbo
 COPY --from=build /app/turbo.json ./turbo.json
 COPY --from=build /app/yarn.lock ./yarn.lock
 COPY --from=build /app/packages/config ./packages/config
@@ -70,6 +70,10 @@ COPY --from=build /app/apps/web/next.config.js ./apps/web/next.config.js
 COPY --from=build /app/apps/web/next-i18next.config.js ./apps/web/next-i18next.config.js
 COPY --from=build /app/apps/web/public/static/locales ./apps/web/public/static/locales
 COPY --from=build /app/apps/web/package.json ./apps/web/package.json
+
+# Symbolic link
+RUN ln -s /app/apps/api/v1 /app/apps/api
+
 # Expose port 80
 EXPOSE 80
 
