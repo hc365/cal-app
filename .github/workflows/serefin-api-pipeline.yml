@@ -49,7 +49,7 @@ jobs:
           echo "API_ENV=staging" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_WEBAPP_URL=https://staging.calendar.serefin.com" >> $GITHUB_ENV
           echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=http://localhost:80" >> "$GITHUB_ENV"
 
       # Environment-specific build variables for UAT
       - name: Set UAT build variables
@@ -77,6 +77,9 @@ jobs:
         run: |
           docker build \
             --build-arg API_ENV=${API_ENV} \
+            --build-arg ORGANIZATIONS_ENABLED=${ORGANIZATIONS_ENABLED} \
+            --build-arg NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL} \
+            --build-arg NEXT_PUBLIC_API_V2_ROOT_URL=${NEXT_PUBLIC_API_V2_ROOT_URL} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./infra/docker/api/Dockerfile .
           
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
