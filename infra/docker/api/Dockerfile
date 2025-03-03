@@ -24,7 +24,7 @@ FROM base as build
 # copy all required files from the monorepo
 COPY package.json yarn.lock .yarnrc.yml playwright.config.ts turbo.json git-init.sh git-setup.sh ./
 COPY /.yarn ./.yarn
-COPY ./apps/api/v1 ./apps/api/v1
+COPY ./apps/api ./apps/api
 COPY ./packages ./packages
 # TODO: follow up pr to remove dependencies on web
 COPY ./apps/web ./apps/web
@@ -55,12 +55,12 @@ RUN apt-get update -qq && \
 # Copy built application
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/api/v1/package.json ./apps/api/v1/package.json
-COPY --from=build /app/apps/api/v1/next-i18next.config.js ./apps/api/v1/next-i18next.config.js
-COPY --from=build /app/apps/api/v1/next.config.js ./apps/api/v1/next.config.js
-COPY --from=build /app/apps/api/v1/tsconfig.json ./apps/api/v1/tsconfig.json
-COPY --from=build /app/apps/api/v1/.next ./apps/api/v1/.next
-COPY --from=build /app/apps/api/v1/.turbo ./apps/api/v1/.turbo
+COPY --from=build /app/apps/api/v1/package.json ./apps/api/package.json
+COPY --from=build /app/apps/api/v1/next-i18next.config.js ./apps/api/next-i18next.config.js
+COPY --from=build /app/apps/api/v1/next.config.js ./apps/api/next.config.js
+COPY --from=build /app/apps/api/v1/tsconfig.json ./apps/api/tsconfig.json
+COPY --from=build /app/apps/api/v1/.next ./apps/api/.next
+COPY --from=build /app/apps/api/v1/.turbo ./apps/api/.turbo
 COPY --from=build /app/turbo.json ./turbo.json
 COPY --from=build /app/yarn.lock ./yarn.lock
 COPY --from=build /app/packages/config ./packages/config
