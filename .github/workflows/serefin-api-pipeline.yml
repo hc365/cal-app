@@ -21,6 +21,7 @@ jobs:
         id: setvars
         run: |
           echo "ENVIRONMENT=production" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       # Extract branch name, timestamp, and short commit SHA
       - name: Extract branch and timestamp
