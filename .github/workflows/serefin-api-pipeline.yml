@@ -21,7 +21,6 @@ jobs:
         id: setvars
         run: |
           echo "ENVIRONMENT=production" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       # Extract branch name, timestamp, and short commit SHA
       - name: Extract branch and timestamp
@@ -50,6 +49,7 @@ jobs:
           echo "API_ENV=staging" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_WEBAPP_URL=https://staging.calendar.serefin.com" >> $GITHUB_ENV
           echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       # Environment-specific build variables for UAT
       - name: Set UAT build variables
@@ -58,6 +58,7 @@ jobs:
           echo "API_ENV=uat" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_WEBAPP_URL=https://uat.calendar.serefin.com" >> $GITHUB_ENV
           echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       # Environment-specific build variables for PROD
       - name: Set PROD build variables
@@ -66,6 +67,7 @@ jobs:
           echo "API_ENV=production" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_WEBAPP_URL=https://calendar.serefin.com" >> $GITHUB_ENV
           echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       - name: Build, tag, and push API image to Amazon ECR
         env:
