@@ -24,7 +24,7 @@ FROM base as build
 # copy all required files from the monorepo
 COPY package.json yarn.lock .yarnrc.yml playwright.config.ts turbo.json git-init.sh git-setup.sh ./
 COPY /.yarn ./.yarn
-COPY ./apps/api ./apps/api
+COPY ./apps/api/v1 ./apps/api/v1
 COPY ./packages ./packages
 # TODO: follow up pr to remove dependencies on web
 COPY ./apps/web ./apps/web
@@ -70,9 +70,6 @@ COPY --from=build /app/apps/web/next.config.js ./apps/web/next.config.js
 COPY --from=build /app/apps/web/next-i18next.config.js ./apps/web/next-i18next.config.js
 COPY --from=build /app/apps/web/public/static/locales ./apps/web/public/static/locales
 COPY --from=build /app/apps/web/package.json ./apps/web/package.json
-
-# Symbolic link
-RUN ln -s /app/apps/api/v1 /app/apps/api
 
 # Expose port 80
 EXPOSE 80
