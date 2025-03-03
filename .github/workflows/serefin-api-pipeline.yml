@@ -68,7 +68,7 @@ jobs:
         run: |
           docker build \
             --build-arg API_ENV=${API_ENV} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./infra/docker/Dockerfile .
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./infra/docker/api/Dockerfile .
           
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
