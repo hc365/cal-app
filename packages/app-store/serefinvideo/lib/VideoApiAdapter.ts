@@ -60,7 +60,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
 
       //Check if org parameter exists in metadata object
       const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
-      if (org) {
+      if (org && typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
         const videoUrl = Object.values(appKeys)
                           .map((val) => val.split("::"))
                           .find(([left]) => left === org)?.[1] ?? "";
