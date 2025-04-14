@@ -11,6 +11,7 @@ interface Metadata {
   contact_id?: string | number;
   lang?: string;
   preferred_language?: string;
+  org?: string;
 }
 
 const SerefinVideoApiAdapter = (): VideoApiAdapter => {
@@ -29,6 +30,9 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       if (booking?.metadata && typeof booking.metadata === "object" && !Array.isArray(booking.metadata)) {
         metadata = booking.metadata as Metadata;
       }
+
+      //Check if org parameter exists in metadata object
+      const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
 
       // Verificação para o campo contact_id
       let meetingId: string;
@@ -60,7 +64,16 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
         for (const [key, value] of Object.entries(appKeys as Record<string, string>)) {
           if (key && typeof value === "string" && value.includes("::")) {
             const [url, roomUrl] = value.split("::");
-            if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
+            if (url === org) {
+              return Promise.resolve({
+                type: "serefin_video",
+                id: meetingId,
+                password: "",
+                url: `https://${roomUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
+                  meetingType
+                )}`,
+              });
+            } else if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
               return Promise.resolve({
                 type: "serefin_video",
                 id: meetingId,
