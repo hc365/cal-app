@@ -11,6 +11,7 @@ interface Metadata {
   contact_id?: string | number;
   lang?: string;
   preferred_language?: string;
+  org?: string;
 }
 
 const SerefinVideoApiAdapter = (): VideoApiAdapter => {
@@ -29,6 +30,8 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       if (booking?.metadata && typeof booking.metadata === "object" && !Array.isArray(booking.metadata)) {
         metadata = booking.metadata as Metadata;
       }
+
+      
 
       // Verificação para o campo contact_id
       let meetingId: string;
@@ -55,6 +58,24 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           ? process.env.NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "")
           : "default-url";
 
+      //Check if org parameter exists in metadata object
+      const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
+      if (org && typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
+        const videoUrl = Object.values(appKeys)
+                          .map((val) => val.split("::"))
+                          .find(([left]) => left === org)?.[1] ?? "";
+        if (videoUrl) {
+          return Promise.resolve({
+            type: "serefin_video",
+            id: meetingId,
+            password: "",
+            url: `https://${videoUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
+              meetingType
+            )}`,
+          });
+        }
+      }
+
       // Loop through appKeys and check the conditions
       if (typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
         for (const [key, value] of Object.entries(appKeys as Record<string, string>)) {
@@ -72,6 +93,8 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
             }
           }
         }
+
+
       } else {
         console.error("Invalid appKeys format", appKeys);
       }
