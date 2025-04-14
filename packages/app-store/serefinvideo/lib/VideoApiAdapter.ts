@@ -31,8 +31,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
         metadata = booking.metadata as Metadata;
       }
 
-      //Check if org parameter exists in metadata object
-      const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
+      
 
       // Verificação para o campo contact_id
       let meetingId: string;
@@ -59,21 +58,30 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           ? process.env.NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "")
           : "default-url";
 
+      //Check if org parameter exists in metadata object
+      const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
+      if (org) {
+        const videoUrl = Object.values(appKeys)
+                          .map((val) => val.split("::"))
+                          .find(([left]) => left === org)?.[1] ?? "";
+        if (videoUrl) {
+          return Promise.resolve({
+            type: "serefin_video",
+            id: meetingId,
+            password: "",
+            url: `https://${videoUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
+              meetingType
+            )}`,
+          });
+        }
+      }
+
       // Loop through appKeys and check the conditions
       if (typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
         for (const [key, value] of Object.entries(appKeys as Record<string, string>)) {
           if (key && typeof value === "string" && value.includes("::")) {
             const [url, roomUrl] = value.split("::");
-            if (url === org) {
-              return Promise.resolve({
-                type: "serefin_video",
-                id: meetingId,
-                password: "",
-                url: `https://${roomUrl}/?room=${meetingId}&lang=${lang}&duration=${duration}&type=${encodeURIComponent(
-                  meetingType
-                )}`,
-              });
-            } else if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
+            if (url.replace(/^https?:\/\//, "") === clientUrl.replace(/^https?:\/\//, "")) {
               return Promise.resolve({
                 type: "serefin_video",
                 id: meetingId,
@@ -85,6 +93,8 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
             }
           }
         }
+
+
       } else {
         console.error("Invalid appKeys format", appKeys);
       }
