@@ -47,18 +47,27 @@ jobs:
         if: github.ref == 'refs/heads/staging'
         run: |
           echo "API_ENV=staging" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://staging.calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=http://localhost:80" >> "$GITHUB_ENV"
 
       # Environment-specific build variables for UAT
       - name: Set UAT build variables
         if: github.ref == 'refs/heads/uat'
         run: |
           echo "API_ENV=uat" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://uat.calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       # Environment-specific build variables for PROD
       - name: Set PROD build variables
         if: github.ref == 'refs/heads/main'
         run: |
           echo "API_ENV=production" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_WEBAPP_URL=https://calendar.serefin.com" >> $GITHUB_ENV
+          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_V2_ROOT_URL=https://localhost:80" >> "$GITHUB_ENV"
 
       - name: Build, tag, and push API image to Amazon ECR
         env:
@@ -68,6 +77,9 @@ jobs:
         run: |
           docker build \
             --build-arg API_ENV=${API_ENV} \
+            --build-arg ORGANIZATIONS_ENABLED=${ORGANIZATIONS_ENABLED} \
+            --build-arg NEXT_PUBLIC_WEBAPP_URL=${NEXT_PUBLIC_WEBAPP_URL} \
+            --build-arg NEXT_PUBLIC_API_V2_ROOT_URL=${NEXT_PUBLIC_API_V2_ROOT_URL} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./infra/docker/api/Dockerfile .
           
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -101,8 +113,6 @@ jobs:
           ECS_SERVICE="${{ vars.STAGING_ECS_SERVICE }}"
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_WEBAPP_URL=https://staging.calendar.serefin.com" >> $GITHUB_ENV
-          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
 
       # Environment-specific variables for UAT deployment
       - name: Set UAT deployment variables
@@ -112,8 +122,6 @@ jobs:
           ECS_SERVICE="${{ vars.UAT_ECS_SERVICE }}"
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_WEBAPP_URL=https://uat.calendar.serefin.com" >> $GITHUB_ENV
-          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
 
       # Environment-specific variables for PROD deployment
       - name: Set PROD deployment variables
@@ -123,8 +131,6 @@ jobs:
           ECS_SERVICE="${{ vars.PROD_ECS_SERVICE }}"
           echo "ECS_CLUSTER=$ECS_CLUSTER" >> $GITHUB_ENV
           echo "ECS_SERVICE=$ECS_SERVICE" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_WEBAPP_URL=https://calendar.serefin.com" >> $GITHUB_ENV
-          echo "ORGANIZATIONS_ENABLED=true" >> $GITHUB_ENV
 
       # Fetch the most recent task definition for this ECS service
       - name: Fetch latest task definition

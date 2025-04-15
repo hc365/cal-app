@@ -5,6 +5,7 @@ ARG NODE_VERSION=20.7.0
 FROM node:${NODE_VERSION}-slim as base
 
 ARG DATABASE_URL
+ARG NEXT_PUBLIC_API_V2_ROOT_URL
 
 # Next.js/Prisma app lives here
 WORKDIR /app
@@ -14,7 +15,8 @@ ENV NODE_ENV="production" \
     ORGANIZATIONS_ENABLED=$ORGANIZATIONS_ENABLED \
     CALCOM_LICENSE_KEY=$CALCOM_LICENSE_KEY \
     DATABASE_URL=$DATABASE_URL \
-    DATABASE_DIRECT_URL=$DATABASE_URL
+    DATABASE_DIRECT_URL=$DATABASE_URL \
+    NEXT_PUBLIC_API_V2_ROOT_URL=$NEXT_PUBLIC_API_V2_ROOT_URL
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
@@ -68,6 +70,7 @@ COPY --from=build /app/apps/web/next.config.js ./apps/web/next.config.js
 COPY --from=build /app/apps/web/next-i18next.config.js ./apps/web/next-i18next.config.js
 COPY --from=build /app/apps/web/public/static/locales ./apps/web/public/static/locales
 COPY --from=build /app/apps/web/package.json ./apps/web/package.json
+
 # Expose port 80
 EXPOSE 80
 
