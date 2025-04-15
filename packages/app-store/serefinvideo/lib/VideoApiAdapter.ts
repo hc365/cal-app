@@ -49,6 +49,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           : "en";
 
       const duration: number = getDuration(event.endTime, event.startTime);
+      
       const meetingType: string = typeof event.type === "string" ? event.type : "unknown";
 
       const clientUrl: string =
