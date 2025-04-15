@@ -49,7 +49,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           : "en";
 
       const duration: number = getDuration(event.endTime, event.startTime);
-      
+
       const meetingType: string = typeof event.type === "string" ? event.type : "unknown";
 
       const clientUrl: string =
@@ -59,6 +59,8 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
           ? process.env.NEXT_PUBLIC_WEBAPP_URL.replace(/^https?:\/\//, "")
           : "default-url";
 
+      console.log("Checking for ORG in metadata...", metadata);
+
       //Check if org parameter exists in metadata object
       const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
       if (org && typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
@@ -66,6 +68,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
                           .filter((val): val is string => typeof val === "string")
                           .map((val) => val.split("::"))
                           .find(([left]) => left === org)?.[1] ?? "";
+        console.log("ORG and URL", org, videoUrl);
         if (videoUrl) {
           return Promise.resolve({
             type: "serefin_video",
