@@ -62,6 +62,7 @@ const SerefinVideoApiAdapter = (): VideoApiAdapter => {
       const org = typeof metadata === "object" && "org" in metadata ? metadata.org ?? "" : "";
       if (org && typeof appKeys === "object" && appKeys !== null && !Array.isArray(appKeys)) {
         const videoUrl = Object.values(appKeys)
+                          .filter((val): val is string => typeof val === "string")
                           .map((val) => val.split("::"))
                           .find(([left]) => left === org)?.[1] ?? "";
         if (videoUrl) {
