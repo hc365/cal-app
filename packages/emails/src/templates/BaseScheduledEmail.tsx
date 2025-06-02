@@ -80,7 +80,11 @@ export const BaseScheduledEmail = (
         />
       )}
       <Info label={t("rejection_reason")} description={props.calEvent.rejectionReason} withSpacer />
-      <Info label={t("what")} description={props.calEvent.title} withSpacer />
+      <Info
+        label={t("what")}
+        description={props.calEvent.title.replace(/( between .+? and .+?)\1/, "$1")}
+        withSpacer
+      />
       <WhenInfo timeFormat={timeFormat} calEvent={props.calEvent} t={t} timeZone={timeZone} locale={locale} />
       <WhoInfo calEvent={props.calEvent} t={t} />
       <LocationInfo calEvent={props.calEvent} t={t} />
